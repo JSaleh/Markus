@@ -224,16 +224,33 @@ class User < ActiveRecord::Base
   # expire every X days/hours/weeks. When it does, a new
   # token should be automatically generated.
   def set_api_key
-    if self.api_key.nil?
+    if self.student?
+      self.api_key = nil
+      return self.save
+    else
+      if self.api_key.nil?
+        key = generate_api_key
+        md5 = Digest::MD5.new
+        md5.update(key)
+        # base64 encode md5 hash
+        self.api_key = Base64.encode64(md5.to_s).strip
+        return self.save
+      else
+        return true
+      end
+    end
+  end
+
+  def set_student_api_key
+    if self.student?
       key = generate_api_key
       md5 = Digest::MD5.new
       md5.update(key)
       # base64 encode md5 hash
       self.api_key = Base64.encode64(md5.to_s).strip
       return self.save
-    else
-      return true
     end
+    return true
   end
 
   # Resets the api key. Usually triggered, if the

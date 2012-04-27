@@ -37,10 +37,8 @@ class AssignmentsController < ApplicationController
     @assignment = Assignment.find(params[:aid])
     @test_result = TestResult.find(params[:test_result_id])
 
-    # Students can use this action only, when marks have been released
     if current_user.student? &&
-        (@test_result.submission.grouping.membership_status(current_user).nil? ||
-        @test_result.submission.result.released_to_students == false)
+      @test_result.submission.grouping.membership_status(current_user).nil?
       render :partial => 'shared/handle_error',
        :locals => {:error => I18n.t('test_result.error.no_access', :test_result_id => @test_result.id)}
       return
@@ -101,7 +99,7 @@ class AssignmentsController < ApplicationController
       @revision_number = @revision.revision_number
 
       # For running tests
-      if params[:collect]
+      if params[:collect] && @grouping.submissions.empty?
         @result = manually_collect_and_prepare_test(@grouping, @revision.revision_number)
       else
         @result = automatically_collect_and_prepare_test(@grouping, @revision.revision_number)

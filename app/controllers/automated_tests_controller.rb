@@ -13,6 +13,7 @@ class AutomatedTestsController < ApplicationController
     @group = @grouping.group
     @test_result_files = @submission.test_results
     if can_run_test?
+      @current_user.set_student_api_key
       export_repository(@group, File.join(MarkusConfigurator.markus_config_automated_tests_repository, @group.repo_name))
       copy_ant_files(@assignment, File.join(MarkusConfigurator.markus_config_automated_tests_repository, @group.repo_name))
       export_configuration_files(@assignment, @group, File.join(MarkusConfigurator.markus_config_automated_tests_repository, @group.repo_name))

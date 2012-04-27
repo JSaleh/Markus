@@ -28,13 +28,27 @@ module Api
         render 'shared/http_status', :locals => { :code => "404", :message => "Submission was not found" }, :status => 404
         return
       end
+
+      # retrieve api key to get current user id
+      auth_token = parse_auth_token(request.headers["HTTP_AUTHORIZATION"])
+      # check that it properly got the api key
+      if auth_token.nil?
+        render 'shared/http_status', :locals => { :code => "403", :message => HttpStatusHelper::ERROR_CODE["message"]["403"] }, :status => 403
+        return
+      end
+      # Find the user from the api key
+      @current_user = User.find_by_api_key(auth_token)
+
       # Request seems good. Check if filename already exists.
       # If it does, update it instead of creating a new one.
-      new_test_result = submission.test_results.find_by_filename(params[:filename])
+      new_test_result = submission.test_results.find_by_filename_and_user_id(params[:filename], @current_user.id)
+
       if new_test_result.nil?
         if TestResult.create(:filename => params[:filename],
            :file_content => params[:file_content],
-           :submission_id => submission.id)
+           :submission_id => submission.id,
+           :status => 'success',
+           :user_id => @current_user.id)
           # All good, so return a success response
           render 'shared/http_status', :locals => { :code => "200", :message => "Success" }, :status => 200
           return

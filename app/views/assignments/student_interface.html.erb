@@ -333,7 +333,7 @@
              <br />
            <% else %>
              <% if @result.nil? && @test_result_files.nil? %>
-                <%= I18n.t("automated_tests.need_one_file") %>
+                <%= raw(I18n.t("automated_tests.need_one_file")) %>
                 <br />
              <% else %>
                 <%

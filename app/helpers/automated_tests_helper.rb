@@ -344,6 +344,7 @@ module AutomatedTestsHelper
       :submission_id => result.submission.id,
       :status => status,
       :user_id => @current_user.id)
+    @current_user.set_student_api_key
   end
 
   # Send output to parser(s) if any
